@@ -1,0 +1,14 @@
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCode\ProjetCode\bin\Debug\ProjetCode.exe.config
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCode\ProjetCode\bin\Debug\ProjetCode.exe
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCode\ProjetCode\bin\Debug\ProjetCode.pdb
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCode\ProjetCode\obj\Debug\ProjetCode.csprojAssemblyReference.cache
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCode\ProjetCode\obj\Debug\ProjetCode.csproj.CoreCompileInputs.cache
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCode\ProjetCode\obj\Debug\ProjetCode.exe
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCode\ProjetCode\obj\Debug\ProjetCode.pdb
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCodeTD2\ProjetCode\bin\Debug\ProjetCode.exe.config
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCodeTD2\ProjetCode\bin\Debug\ProjetCode.exe
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCodeTD2\ProjetCode\bin\Debug\ProjetCode.pdb
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCodeTD2\ProjetCode\obj\Debug\ProjetCode.csprojAssemblyReference.cache
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCodeTD2\ProjetCode\obj\Debug\ProjetCode.csproj.CoreCompileInputs.cache
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCodeTD2\ProjetCode\obj\Debug\ProjetCode.exe
+C:\Users\admin\Desktop\ESILV\A2\S2\Projet Info\ProjetCodeTD2\ProjetCode\obj\Debug\ProjetCode.pdb
