@@ -69,14 +69,60 @@ namespace ProjetCode
 
         public void FromImageToFile(string chemin)
         {
-            int index = this.tailleOffset;
             byte[] datas = new byte[this.taille];
-            string extension = Path.GetExtension(chemin);
+            string extensionExport = Path.GetExtension(chemin);
 
+            // Construction en-tête
+            switch (this.type)
+            {
+                case "BMP":
+                    datas = BuildBMPHeader(datas);
+                    break;
+                default:
+                    datas = BuildBMPHeader(datas);
+                    break;
+            }
+
+            // Ecriture
+            switch (extensionExport)
+            {
+                case ".bmp":
+                    WriteBMP(datas, chemin);
+                    break;
+                case ".csv":
+                    WriteCSV(datas, chemin);
+                    break;
+            }
+
+            
+        }
+
+        #region write
+        private void WriteCSV(byte[] datas, string chemin)
+        {
+            StreamWriter strWriter = new StreamWriter(MyImage.chemin + chemin);
+            string line = "";
+
+            for (int i = 0; i < this.pixelsImage.GetLength(0); i++)
+            {
+                for (int j = 0; j < this.pixelsImage.GetLength(0); j++)
+                {
+                    line += this.pixelsImage[i, j].Red + ";";
+                    line += this.pixelsImage[i, j].Green + ";";
+                    line += this.pixelsImage[i, j].Blue + ";";
+                }
+
+                strWriter.WriteLine(line);
+                line = "";
+            }
+
+            strWriter.Close();
+        }
+
+        private void WriteBMP(byte[] datas, string chemin)
+        {
             FileStream fs = new FileStream(MyImage.chemin + chemin, FileMode.Create, FileAccess.Write);
-
-            //Construction en-tête (BMP)
-            datas = BuildBMPHeader(datas);
+            int index = this.tailleOffset;
 
             // Construction des données
             for (int i = 0; i < this.pixelsImage.GetLength(0); i++)
@@ -95,7 +141,9 @@ namespace ProjetCode
             fs.Write(datas, 0, datas.Length);
             fs.Close();
         }
+        #endregion
 
+        #region header
         private void ReadImageBMP(byte[] datas)
         {
             int index = this.tailleOffset;
@@ -169,7 +217,9 @@ namespace ProjetCode
 
             return Convert.ToInt32(result);
         }
+        #endregion
 
+        #region tools
         private byte[] ConvertDecToLE(int number, int size)
         {
             byte[] result = new byte[size];
@@ -211,6 +261,7 @@ namespace ProjetCode
                 datas[i] = b;
             }
         }
+        #endregion
 
         #endregion
     }
