@@ -18,7 +18,7 @@ namespace ProjetCode
         private int tailleOffset;
         private int bitsPixel;
 
-        private Pixel[,] couleurs;
+        private Pixel[,] pixelsImage;
 
         #region constructeurs
         public MyImage(string chemin)
@@ -31,7 +31,7 @@ namespace ProjetCode
                 {
                     this.type = "bmp";
                     ReadHeaderBMP(datas);
-                    this.couleurs = new Pixel[this.hauteur, this.largeur];
+                    this.pixelsImage = new Pixel[this.hauteur, this.largeur];
 
                     ReadImageBMP(datas);
                 }
@@ -47,11 +47,55 @@ namespace ProjetCode
         #region proprietes
         public Pixel[,] Couleurs
         {
-            get { return this.couleurs; }
+            get { return this.pixelsImage; }
         }
         #endregion
 
         #region methodes
+        public static bool IsBitMap(byte[] datas, string chemin)
+        {
+            bool result = false;
+
+            if (File.Exists(MyImage.chemin + chemin))
+            {
+                if (datas[0] == 66 && datas[1] == 77)
+                {
+                    result = true;
+                }
+            }
+
+            return result;
+        }
+
+        public void FromImageToFile(string chemin)
+        {
+            int index = this.tailleOffset;
+            byte[] datas = new byte[this.taille];
+            string extension = Path.GetExtension(chemin);
+
+            FileStream fs = new FileStream(MyImage.chemin + chemin, FileMode.Create, FileAccess.Write);
+
+            //Construction en-tête (BMP)
+            datas = BuildBMPHeader(datas);
+
+            // Construction des données
+            for (int i = 0; i < this.pixelsImage.GetLength(0); i++)
+            {
+                for (int j = 0; j < this.pixelsImage.GetLength(1); j++)
+                {
+                    datas[index] = Convert.ToByte(this.pixelsImage[i, j].Blue);
+                    datas[index + 1] = Convert.ToByte(this.pixelsImage[i, j].Green);
+                    datas[index + 2] = Convert.ToByte(this.pixelsImage[i, j].Red);
+
+                    index += 3;
+                }
+            }
+
+            // Ajout des lignes
+            fs.Write(datas, 0, datas.Length);
+            fs.Close();
+        }
+
         private void ReadImageBMP(byte[] datas)
         {
             int index = this.tailleOffset;
@@ -60,7 +104,7 @@ namespace ProjetCode
             {
                 for (int j = 0; j < this.largeur; j++)
                 {
-                    this.couleurs[i, j] = new Pixel(i, j, datas[index + 2], datas[index + 1], datas[index]);
+                    this.pixelsImage[i, j] = new Pixel(i, j, datas[index + 2], datas[index + 1], datas[index]);
                     index += 3;
                 }
             }
@@ -69,22 +113,50 @@ namespace ProjetCode
         private void ReadHeaderBMP(byte[] datas)
         {
             // Taille Fichier
-            this.taille = ConvertToDec(GetLittleEndian(datas, 2, 4));
+            this.taille = ConvertLEToDec(GetLittleEndian(datas, 2, 4));
 
             // Offset
-            this.tailleOffset = ConvertToDec(GetLittleEndian(datas, 10, 4));
+            this.tailleOffset = ConvertLEToDec(GetLittleEndian(datas, 10, 4));
 
             // largeur
-            this.largeur = ConvertToDec(GetLittleEndian(datas, 18, 4));
+            this.largeur = ConvertLEToDec(GetLittleEndian(datas, 18, 4));
 
             // hauteur
-            this.hauteur = ConvertToDec(GetLittleEndian(datas, 22, 4));
+            this.hauteur = ConvertLEToDec(GetLittleEndian(datas, 22, 4));
 
             // hauteur
-            this.bitsPixel = ConvertToDec(GetLittleEndian(datas, 28, 2)) / 8;
+            this.bitsPixel = ConvertLEToDec(GetLittleEndian(datas, 28, 2)) / 8;
         }
 
-        private int ConvertToDec(byte[] datas)
+        private byte[] BuildBMPHeader(byte[] datas)
+        {
+            byte[] taille = ConvertDecToLE(this.taille, 4),
+                tailleOffset = ConvertDecToLE(this.tailleOffset, 4),
+                largeur = ConvertDecToLE(this.largeur, 4),
+                hauteur = ConvertDecToLE(this.hauteur, 4),
+                bitsPixel = ConvertDecToLE(this.bitsPixel * 8, 2),
+                headerInfoSize = ConvertDecToLE(40, 4);
+
+            datas[0] = 66;
+            datas[1] = 77;
+            InsertLittleEndian(datas, taille, 2);
+            CompleteWith(datas, 0, 6, 4);
+
+            InsertLittleEndian(datas, tailleOffset, 10);
+            InsertLittleEndian(datas, headerInfoSize, 14);
+
+            InsertLittleEndian(datas, largeur, 18);
+            InsertLittleEndian(datas, hauteur, 22);
+            datas[26] = 1;
+            datas[27] = 0;
+
+            InsertLittleEndian(datas, bitsPixel, 28);
+            CompleteWith(datas, 0, 32, 22);
+
+            return datas;
+        }
+
+        private int ConvertLEToDec(byte[] datas)
         {
             double result = 0;
             int compteur = 0;
@@ -96,6 +168,18 @@ namespace ProjetCode
             }
 
             return Convert.ToInt32(result);
+        }
+
+        private byte[] ConvertDecToLE(int number, int size)
+        {
+            byte[] result = new byte[size];
+
+            for (int i = (size - 1); i >= 0;  i--)
+            {
+                result[i] = (byte) (number / (Math.Pow(256, Convert.ToDouble(i))));
+            }
+
+            return result;
         }
 
         private byte[] GetLittleEndian(byte[] datas, int k, int longueur)
@@ -112,20 +196,22 @@ namespace ProjetCode
             return result;
         }
 
-        public static bool IsBitMap(byte[] datas, string chemin)
+        private void InsertLittleEndian(byte[] datas, byte[] littleEndian, int begin)
         {
-            bool result = false;
-
-            if (File.Exists(MyImage.chemin + chemin))
+            for (int i = begin; i < (begin + littleEndian.Length); i++)
             {
-                if (datas[0] == 66 && datas[1] == 77)
-                {
-                    result = true;
-                }
+                datas[i] = littleEndian[i - begin];
             }
-
-            return result;
         }
+
+        private void CompleteWith(byte[] datas, byte b, int begin, int number)
+        {
+            for (int i = begin; i < (begin + number); i++)
+            {
+                datas[i] = b;
+            }
+        }
+
         #endregion
     }
 }

@@ -25,6 +25,12 @@ namespace ProjetCode
         }
         #endregion
 
+        #region proprietes
+        public int Red { get { return this.R; } }
+        public int Green { get { return this.G; } }
+        public int Blue { get { return this.B; } }
+        #endregion
+
         #region methodes
         public int[] GetCouleur()
         {
