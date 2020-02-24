@@ -67,6 +67,7 @@ namespace ProjetCode
         public Pixel[,] Couleurs
         {
             get { return this.pixelsImage; }
+            set { this.pixelsImage = value; }
         }
 
         public int Largeur
@@ -113,6 +114,36 @@ namespace ProjetCode
         }
 
         #region actions
+        public void MirrorX()
+        {
+            Pixel[,] newImage = new Pixel[this.hauteur, this.largeur];
+
+            for (int j = this.pixelsImage.GetLength(1) - 1; j >= 0; j--)
+            {
+                for (int i = this.pixelsImage.GetLength(0) - 1; i >= 0; i--)
+                {
+                    newImage[(this.hauteur - 1) - i, (this.largeur - 1) - j] = this.pixelsImage[i, j];
+                }
+            }
+
+            this.pixelsImage = newImage;
+        }
+
+        public void MirrorY()
+        {
+            Pixel[,] newImage = new Pixel[this.hauteur, this.largeur];
+
+            for (int i = this.pixelsImage.GetLength(0) - 1; i >= 0; i--)
+            {
+                for (int j = this.pixelsImage.GetLength(1) - 1; j >= 0; j--)
+                {
+                    newImage[(this.hauteur - 1) - i, (this.largeur - 1) - j] = this.pixelsImage[i, j];
+                }
+            }
+
+            this.pixelsImage = newImage;
+        }
+
         public MyImage Minimize(int ratio)
         {
             double newHauteur = this.hauteur / ratio, newLargeur = this.largeur / ratio, newTaille = this.taille / ratio;
@@ -120,7 +151,6 @@ namespace ProjetCode
             MyImage newImage = new MyImage(this.type, (int) newLargeur, (int) newHauteur, (int) newTaille, this.tailleOffset);
             Pixel[,] image = new Pixel[newImage.Hauteur, newImage.Largeur];
 
-            
 
             return newImage;
         }
