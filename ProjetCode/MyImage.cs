@@ -25,17 +25,18 @@ namespace ProjetCode
         {
             if (File.Exists(MyImage.chemin + chemin))
             {
+                byte[] datas = File.ReadAllBytes(MyImage.chemin + chemin);
 
-                if (Path.GetExtension(MyImage.chemin + chemin) == ".bmp")
+                if (datas[0] == 66 && datas[1] == 77)
                 {
-                    byte[] datas = File.ReadAllBytes(MyImage.chemin + chemin);
 
                     this.type = "bmp";
                     ReadHeaderBMP(datas);
                     this.pixelsImage = new Pixel[this.hauteur, this.largeur];
 
                     ReadImageBMP(datas);
-                }else if (Path.GetExtension(MyImage.chemin + chemin) == ".csv")
+                }
+                /**else if (Path.GetExtension(MyImage.chemin + chemin) == ".csv")
                 {
                     this.type = "csv";
                     ReadHeaderCSV(chemin);
@@ -43,7 +44,7 @@ namespace ProjetCode
                     this.pixelsImage = new Pixel[this.hauteur, this.largeur];
 
                     ReadImageCSV(chemin);
-                }
+                }**/
                 else
                 {
                     Console.WriteLine("Ce n'est pas une image reconnue. Construction annulée.");
@@ -51,12 +52,31 @@ namespace ProjetCode
                
             }
         }
+
+        public MyImage(string type, int largeur, int hauteur, int taille, int tailleOffset)
+        {
+            this.type = type;
+            this.largeur = largeur;
+            this.hauteur = hauteur;
+            this.taille = taille;
+            this.tailleOffset = tailleOffset;
+        }
         #endregion
 
         #region proprietes
         public Pixel[,] Couleurs
         {
             get { return this.pixelsImage; }
+        }
+
+        public int Largeur
+        {
+            get { return this.largeur; }
+        }
+
+        public int Hauteur
+        {
+            get { return this.hauteur; }
         }
         #endregion
 
@@ -92,7 +112,19 @@ namespace ProjetCode
             
         }
 
-        #region filters
+        #region actions
+        public MyImage Minimize(int ratio)
+        {
+            double newHauteur = this.hauteur / ratio, newLargeur = this.largeur / ratio, newTaille = this.taille / ratio;
+
+            MyImage newImage = new MyImage(this.type, (int) newLargeur, (int) newHauteur, (int) newTaille, this.tailleOffset);
+            Pixel[,] image = new Pixel[newImage.Hauteur, newImage.Largeur];
+
+            
+
+            return newImage;
+        }
+
         public void GreyShadesFilter()
         {
             int temp;
@@ -140,7 +172,7 @@ namespace ProjetCode
         #endregion
 
         #region write
-            private void WriteCSV(byte[] datas, string chemin)
+        private void WriteCSV(byte[] datas, string chemin)
         {
             StreamWriter strWriter = new StreamWriter(MyImage.chemin + chemin);
             string line = "";
