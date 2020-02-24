@@ -11,7 +11,9 @@ namespace ProjetCode
         static void Main(string[] args)
         {
             MyImage image = new MyImage("/bin/Debug/Images/coco.bmp");
+            image.BlackAndWhiteFilter();
             image.FromImageToFile("/bin/Debug/Exports/ExportTest.bmp");
+
             Console.ReadKey();
         }
     }

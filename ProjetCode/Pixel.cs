@@ -26,9 +26,9 @@ namespace ProjetCode
         #endregion
 
         #region proprietes
-        public int Red { get { return this.R; } }
-        public int Green { get { return this.G; } }
-        public int Blue { get { return this.B; } }
+        public int Red { get { return this.R; } set { this.R = value; } }
+        public int Green { get { return this.G; } set { this.G = value; } }
+        public int Blue { get { return this.B; } set { this.B = value; } }
         #endregion
 
         #region methodes

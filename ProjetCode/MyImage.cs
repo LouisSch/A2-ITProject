@@ -61,6 +61,7 @@ namespace ProjetCode
         #endregion
 
         #region methodes
+
         public void FromImageToFile(string chemin)
         {
             byte[] datas = new byte[this.taille];
@@ -91,8 +92,55 @@ namespace ProjetCode
             
         }
 
+        #region filters
+        public void GreyShadesFilter()
+        {
+            int temp;
+
+            for (int i = 0; i < pixelsImage.GetLength(0); i++)
+            {
+                for (int j = 0; j < pixelsImage.GetLength(1); j++)
+                {
+                    temp = Convert.ToByte((this.pixelsImage[i, j].Red + this.pixelsImage[i, j].Green + this.pixelsImage[i, j].Blue) / 3);
+
+                    this.pixelsImage[i, j].Red = temp;
+                    this.pixelsImage[i, j].Green = temp;
+                    this.pixelsImage[i, j].Blue = temp;
+                }
+            }
+        }
+
+        public void BlackAndWhiteFilter()
+        {
+            byte temp;
+            int med = 127;
+
+            for (int i = 0; i < pixelsImage.GetLength(0); i++)
+            {
+                for (int j = 0; j < pixelsImage.GetLength(1); j++)
+                {
+                    temp = Convert.ToByte((this.pixelsImage[i, j].Red + this.pixelsImage[i, j].Green + this.pixelsImage[i, j].Blue) / 3);
+
+                    if (temp <= med)
+                    {
+                        this.pixelsImage[i, j].Red = 0;
+                        this.pixelsImage[i, j].Green = 0;
+                        this.pixelsImage[i, j].Blue = 0;
+                    }
+                    else
+                    {
+                        this.pixelsImage[i, j].Red = 255;
+                        this.pixelsImage[i, j].Green = 255;
+                        this.pixelsImage[i, j].Blue = 255;
+                    }
+
+                }
+            }
+        }
+        #endregion
+
         #region write
-        private void WriteCSV(byte[] datas, string chemin)
+            private void WriteCSV(byte[] datas, string chemin)
         {
             StreamWriter strWriter = new StreamWriter(MyImage.chemin + chemin);
             string line = "";
