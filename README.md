@@ -6,3 +6,4 @@ Todo :
 - Maximize()
 - MirrorX()
 - MirrorY()
+- Rotate()
