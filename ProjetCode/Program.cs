@@ -10,8 +10,8 @@ namespace ProjetCode
     {
         static void Main(string[] args)
         {
-            MyImage image = new MyImage("/bin/Debug/Images/Test.bmp");
-            image.FromImageToFile("/bin/Debug/Exports/ExportTest.csv");
+            MyImage image = new MyImage("/bin/Debug/Images/coco.bmp");
+            image.FromImageToFile("/bin/Debug/Exports/ExportTest.bmp");
             Console.ReadKey();
         }
     }

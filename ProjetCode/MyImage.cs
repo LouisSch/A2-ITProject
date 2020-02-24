@@ -15,8 +15,8 @@ namespace ProjetCode
         private int largeur;
         private int hauteur;
         private int taille;
-        private int tailleOffset;
-        private int bitsPixel;
+        private int tailleOffset = 54;
+        private int bitsPixel = 3;
 
         private Pixel[,] pixelsImage;
 
@@ -25,19 +25,28 @@ namespace ProjetCode
         {
             if (File.Exists(MyImage.chemin + chemin))
             {
-                byte[] datas = File.ReadAllBytes(MyImage.chemin + chemin);
 
-                if (MyImage.IsBitMap(datas, chemin))
+                if (Path.GetExtension(MyImage.chemin + chemin) == ".bmp")
                 {
+                    byte[] datas = File.ReadAllBytes(MyImage.chemin + chemin);
+
                     this.type = "bmp";
                     ReadHeaderBMP(datas);
                     this.pixelsImage = new Pixel[this.hauteur, this.largeur];
 
                     ReadImageBMP(datas);
+                }else if (Path.GetExtension(MyImage.chemin + chemin) == ".csv")
+                {
+                    this.type = "csv";
+                    ReadHeaderCSV(chemin);
+
+                    this.pixelsImage = new Pixel[this.hauteur, this.largeur];
+
+                    ReadImageCSV(chemin);
                 }
                 else
                 {
-                    Console.WriteLine("Ce n'est pas une image Bitmap. Construction annulée.");
+                    Console.WriteLine("Ce n'est pas une image reconnue. Construction annulée.");
                 }
                
             }
@@ -52,21 +61,6 @@ namespace ProjetCode
         #endregion
 
         #region methodes
-        public static bool IsBitMap(byte[] datas, string chemin)
-        {
-            bool result = false;
-
-            if (File.Exists(MyImage.chemin + chemin))
-            {
-                if (datas[0] == 66 && datas[1] == 77)
-                {
-                    result = true;
-                }
-            }
-
-            return result;
-        }
-
         public void FromImageToFile(string chemin)
         {
             byte[] datas = new byte[this.taille];
@@ -143,7 +137,39 @@ namespace ProjetCode
         }
         #endregion
 
-        #region header
+        #region read
+        private void ReadImageCSV(string chemin)
+        {
+            StreamReader strReader = new StreamReader(MyImage.chemin + chemin);
+            string line;
+
+            while ((line = strReader.ReadLine()) != null)
+            {
+
+            }
+        }
+
+        private void ReadHeaderCSV(string chemin)
+        {
+            StreamReader strReader = new StreamReader(MyImage.chemin + chemin);
+            int hauteur = 0, largeur = 0;
+            string line;
+
+            while ((line = strReader.ReadLine()) != null)
+            {
+                hauteur++;
+
+                if (largeur == 0)
+                    largeur = line.Split(new char[] { ';' }).Length;
+            }
+
+            this.largeur = largeur / 3;
+            this.hauteur = hauteur;
+            this.taille = largeur * hauteur + this.tailleOffset;
+
+            strReader.Close();
+        }
+
         private void ReadImageBMP(byte[] datas)
         {
             int index = this.tailleOffset;
@@ -175,7 +201,9 @@ namespace ProjetCode
             // hauteur
             this.bitsPixel = ConvertLEToDec(GetLittleEndian(datas, 28, 2)) / 8;
         }
+        #endregion
 
+        #region header
         private byte[] BuildBMPHeader(byte[] datas)
         {
             byte[] taille = ConvertDecToLE(this.taille, 4),
@@ -202,20 +230,6 @@ namespace ProjetCode
             CompleteWith(datas, 0, 32, 22);
 
             return datas;
-        }
-
-        private int ConvertLEToDec(byte[] datas)
-        {
-            double result = 0;
-            int compteur = 0;
-
-            foreach (byte b in datas)
-            {
-                result += Math.Pow(256, Convert.ToDouble(compteur)) * b;
-                compteur++;
-            }
-
-            return Convert.ToInt32(result);
         }
         #endregion
 
@@ -260,6 +274,35 @@ namespace ProjetCode
             {
                 datas[i] = b;
             }
+        }
+
+        public static bool IsBitMap(byte[] datas, string chemin)
+        {
+            bool result = false;
+
+            if (File.Exists(MyImage.chemin + chemin))
+            {
+                if (datas[0] == 66 && datas[1] == 77)
+                {
+                    result = true;
+                }
+            }
+
+            return result;
+        }
+
+        private int ConvertLEToDec(byte[] datas)
+        {
+            double result = 0;
+            int compteur = 0;
+
+            foreach (byte b in datas)
+            {
+                result += Math.Pow(256, Convert.ToDouble(compteur)) * b;
+                compteur++;
+            }
+
+            return Convert.ToInt32(result);
         }
         #endregion
 
