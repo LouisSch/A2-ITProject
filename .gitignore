@@ -1,2 +1,5 @@
 .vs/*
 desktop.ini
+*.csproj
+ProjetCode/bin/*
+ProjetCode/obj/.
