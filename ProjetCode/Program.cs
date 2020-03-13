@@ -11,8 +11,8 @@ namespace ProjetCode
         static void Main(string[] args)
         {
             MyImage image = new MyImage("/bin/Debug/Images/coco.bmp");
-            image.GreyShadesFilter();
-            image.FromImageToFile("/bin/Debug/Exports/ExportTest.bmp");
+            MyImage newImg = image.Maximize(2);
+            newImg.FromImageToFile("/bin/Debug/Exports/ExportTest.bmp");
 
             Console.ReadKey();
         }

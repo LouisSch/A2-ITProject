@@ -229,6 +229,36 @@ namespace ProjetCode
         }
 
         /// <summary>
+        /// Permet d'agrandir la taille d'une image
+        /// </summary>
+        /// <param name="ratio">Le ratio pour augmenter la largeur et la hauteur</param>
+        /// <returns>Une nouvelle instance contenant la nouvelle image</returns>
+        public MyImage Maximize(int ratio)
+        {
+            int newHauteur = this.hauteur * ratio, newLargeur = this.largeur * ratio, newTaille = (newHauteur * newLargeur * this.bitsPixel) + this.tailleOffset;
+            MyImage newImage = new MyImage(this.type, newLargeur, newHauteur, newTaille, this.tailleOffset);
+            Pixel[,] image = new Pixel[newImage.Hauteur, newImage.Largeur];
+
+            for (int i = 0; i < image.GetLength(0); i += ratio)
+            {
+                for (int j = 0; j < image.GetLength(1); j += ratio)
+                {
+                    for (int k = 0; k < ratio; k++)
+                    {
+                        for (int l = 0; l < ratio; l++)
+                        {
+                            image[i + k, j + l] = this.pixelsImage[i / ratio, j / ratio];
+                        }
+                    }
+                }
+            }
+
+            newImage.PixelsImage = image;
+
+            return newImage;
+        }
+
+        /// <summary>
         /// Permet de passer l'image en nuances de gris
         /// </summary>
         public void GreyShadesFilter()

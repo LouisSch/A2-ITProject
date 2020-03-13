@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ProjetCode</name>
+    </assembly>
+    <members>
+        <member name="T:ProjetCode.MyImage">
+            <summary>
+            Classe image
+            </summary>
+        </member>
+        <member name="M:ProjetCode.MyImage.#ctor(System.String)">
+            <summary>
+            Constructeur principal de MyImage
+            </summary>
+            <param name="chemin">Chemin relatif au dossier du projet, dans lequel se trouve l'image à convertir en objet</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.#ctor(System.String,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Constructeur secondaire de MyImage
+            </summary>
+            <param name="type">Type de fichier (CSV, BitMap...)</param>
+            <param name="largeur">Largeur</param>
+            <param name="hauteur">Hauteur</param>
+            <param name="taille">Taille du fichier</param>
+            <param name="tailleOffset">Taille de l'offset de l'header</param>
+        </member>
+        <member name="P:ProjetCode.MyImage.PixelsImage">
+            <summary>
+            Propriétés de la matrice PixelsImage
+            </summary>
+        </member>
+        <member name="P:ProjetCode.MyImage.Largeur">
+            <summary>
+            Propriétés de Largeur
+            </summary>
+        </member>
+        <member name="P:ProjetCode.MyImage.Hauteur">
+            <summary>
+            Propriétés de Hauteur
+            </summary>
+        </member>
+        <member name="M:ProjetCode.MyImage.FromImageToFile(System.String)">
+            <summary>
+            Permet d'exporter une image
+            </summary>
+            <param name="chemin">Chemin relatif (par rapport au dossier du projet) avec le nom du fichier et son extension</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.MirrorX">
+            <summary>
+            Permet de faire une symétrie par rapport à l'horizontale
+            </summary>
+        </member>
+        <member name="M:ProjetCode.MyImage.MirrorY">
+            <summary>
+            Permet de faire une symétrie par rapport à la verticale
+            </summary>
+        </member>
+        <member name="M:ProjetCode.MyImage.Minimize(System.Int32)">
+            <summary>
+            Permet de réduire la taille d'une image
+            </summary>
+            <param name="ratio">Le ratio pour réduire la largeur et la hauteur</param>
+            <returns>Une nouvelle instance contenant la nouvelle image</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.GreyShadesFilter">
+            <summary>
+            Permet de passer l'image en nuances de gris
+            </summary>
+        </member>
+        <member name="M:ProjetCode.MyImage.BlackAndWhiteFilter">
+            <summary>
+            Permet de passer l'image en noir et blanc
+            </summary>
+        </member>
+        <member name="M:ProjetCode.MyImage.WriteCSV(System.Byte[],System.String)">
+            <summary>
+            Permet d'écrire un fichier CSV
+            </summary>
+            <param name="datas">Le tableau de données qui devra être écrit</param>
+            <param name="chemin">Le chemin où le fichier sera écrit</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.WriteBMP(System.Byte[],System.String)">
+            <summary>
+            Permet d'écrire un fichier BitMap
+            </summary>
+            <param name="datas">Le tableau de données qui devra être écrit</param>
+            <param name="chemin">Le chemin où le fichier sera écrit</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.ReadHeaderCSV(System.String)">
+            <summary>
+            Permet de lire l'header d'une image en format CSV
+            </summary>
+            <param name="chemin">Chemin vers le fichier cible</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.ReadImageBMP(System.Byte[])">
+            <summary>
+            Permet de lire les octets d'une image BMP
+            </summary>
+            <param name="datas">Le tableau de données dans lequel se trouvent les données de l'image</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.ReadHeaderBMP(System.Byte[])">
+            <summary>
+            Permet de lire l'header d'une image en format BMP
+            </summary>
+            <param name="datas">Le tableau de données dans lequel se trouvent les données du header</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.BuildBMPHeader(System.Byte[])">
+            <summary>
+            Permet de construire un header BMP à partir des champs de classe
+            </summary>
+            <param name="datas">Le tableau de données dans lequel le header va être ajouté</param>
+            <returns></returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.InsertLittleEndian(System.Byte[],System.Byte[],System.Int32)">
+            <summary>
+            Permet d'insérer un tableau de byte en little endian
+            </summary>
+            <param name="datas">Le tableau dans lequel va être inséré le little endian</param>
+            <param name="littleEndian">Little endian à insérer</param>
+            <param name="begin">Indexe à laquelle l'insérer</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.CompleteWith(System.Byte[],System.Byte,System.Int32,System.Int32)">
+            <summary>
+            Permet d'ajouter une succession d'octets dans un tableau
+            </summary>
+            <param name="datas">Tableau dans lequel ajouter les octets</param>
+            <param name="b">Byte à ajouter</param>
+            <param name="begin">Indexe à laquelle commencer</param>
+            <param name="number">Nombre de fois que l'on doit répéter l'octet</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.ConvertDecToLE(System.Int32,System.Int32)">
+            <summary>
+            Permet de convertir Un décimal en little endian
+            </summary>
+            <param name="number">Nombre à convertir</param>
+            <param name="size">Sur combien d'octets le décimal doit être écrit</param>
+            <returns></returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.ConvertLEToDec(System.Byte[])">
+            <summary>
+            Permet de convertir un little endian en décimal
+            </summary>
+            <param name="datas">Tableau contenant les octets à convertir</param>
+            <returns>Décimal converti depuis le little endian</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.IsBitMap(System.Byte[])">
+            <summary>
+            Permet de vérifier si le fichier est bien un BitMap
+            </summary>
+            <param name="datas">Tableau de données du fichier</param>
+            <returns>True si c'est un bitmap, false sinon</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.GetLittleEndian(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Permet de récupérer une partie de code en format little endian
+            </summary>
+            <param name="datas">Tableau de données</param>
+            <param name="k">Indexe à laquelle on commence à extraire les données</param>
+            <param name="longueur">Nombre d'octets du code en little endian</param>
+            <returns>Tableau d'octets avec le code en format little endian</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.CompleteWithBlackPixels(ProjetCode.Pixel[0:,0:])">
+            <summary>
+            Permet de compléter les pixels vides d'une image par des pixels noirs
+            </summary>
+            <param name="image">Matrice contenant les pixels de l'image</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.ToFormat4(System.Int32[])">
+            <summary>
+            Permet de rendre les dimensions d'une image divisibles par 4
+            </summary>
+            <param name="dimensions">Dimensions à (éventuellement) modifier</param>
+        </member>
+        <member name="T:ProjetCode.Pixel">
+            <summary>
+            Classe Pixel
+            </summary>
+        </member>
+        <member name="M:ProjetCode.Pixel.#ctor(System.Int32,System.Int32,System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Constructeur de Pixel
+            </summary>
+            <param name="x">Coordonnée en ligne</param>
+            <param name="y">Coordonnée en colonne</param>
+            <param name="R">Rouge</param>
+            <param name="G">Vert</param>
+            <param name="B">Bleu</param>
+        </member>
+        <member name="P:ProjetCode.Pixel.Red">
+            <summary>
+            Propriété de Rouge
+            </summary>
+        </member>
+        <member name="P:ProjetCode.Pixel.Green">
+            <summary>
+            Propriété de Vert
+            </summary>
+        </member>
+        <member name="P:ProjetCode.Pixel.Blue">
+            <summary>
+            Propriété de Bleu
+            </summary>
+        </member>
+        <member name="M:ProjetCode.Pixel.GetCouleur">
+            <summary>
+            Permet de récupérer les valeurs r, v, b d'un pixel
+            </summary>
+            <returns>Tableau contenant les valeurs</returns>
+        </member>
+        <member name="M:ProjetCode.Pixel.ToString">
+            <summary>
+            Converti les valeurs r, v, b en string
+            </summary>
+            <returns>Un string contenant les valeurs r, v, b</returns>
+        </member>
+    </members>
+</doc>
