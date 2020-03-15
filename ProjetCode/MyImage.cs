@@ -172,6 +172,51 @@ namespace ProjetCode
         }
 
         /// <summary>
+        /// Permet d'effectuer une rotation sur une image
+        /// </summary>
+        /// <param name="angle">Angle de rotation en degrés</param>
+        public MyImage Rotate(double angle)
+        {
+            int newTaille = this.bitsPixel * this.largeur * this.largeur + this.tailleOffset, coordFinX = 0, coordFinY = 0;
+            double centeredCoordHauteur = 0, centeredCoordLargeur = 0, newCoordHauteur = 0, newCoordLargeur = 0;
+
+            MyImage newImage = new MyImage(this.type, this.largeur, this.largeur, newTaille, this.tailleOffset);
+            Pixel[,] image = new Pixel[this.largeur, this.largeur];
+
+            angle = ConvertDegreeToRad(angle);
+
+            // On remplit l'image d'arrivée
+            for (int i = 0; i < image.GetLength(0); i++)
+            {
+                for (int j = 0; j < image.GetLength(1); j++)
+                {
+                    // On recentre les coordonnées
+                    centeredCoordHauteur = i - (newImage.Hauteur / 2);
+                    centeredCoordLargeur = j - (newImage.Largeur / 2);
+
+                    // Transformation des coordonnées pour obtenir celles de l'image de base
+                    newCoordHauteur = Math.Cos(-1 * angle) * centeredCoordHauteur + Math.Sin(-1 *angle) * centeredCoordLargeur;
+                    newCoordLargeur = Math.Cos(-1 * angle) * centeredCoordLargeur - Math.Sin(-1 * angle) * centeredCoordHauteur;
+
+                    // On remet les coordonnées sur le repère de base de l'image originale
+                    coordFinX = (int)(Math.Floor(newCoordHauteur) + this.hauteur / 2);
+                    coordFinY = (int)(Math.Floor(newCoordLargeur) + this.largeur / 2);
+                     
+                    // On complète si possible avec les pixels
+                    if (coordFinX >= 0 && coordFinX < this.hauteur && coordFinY >= 0 && coordFinY < this.largeur)
+                    {
+                        image[i, j] = this.pixelsImage[coordFinX, coordFinY];
+                    }
+                }
+            }
+
+            CompleteWithBlackPixels(image);
+            newImage.PixelsImage = image;
+
+            return newImage;
+        }
+
+        /// <summary>
         /// Permet de réduire la taille d'une image
         /// </summary>
         /// <param name="ratio">Le ratio pour réduire la largeur et la hauteur</param>
@@ -612,6 +657,16 @@ namespace ProjetCode
                     dimensions[1]++;
                 }
             }
+        }
+
+        /// <summary>
+        /// Permet de convertir de degrés en radians
+        /// </summary>
+        /// <param name="angle">Angle à convertir</param>
+        /// <returns>L'angle en radians</returns>
+        private double ConvertDegreeToRad(double angle)
+        {
+            return (angle * Math.PI) / 180;
         }
         #endregion
 
