@@ -177,11 +177,11 @@ namespace ProjetCode
         /// <param name="angle">Angle de rotation en degrés</param>
         public MyImage Rotate(double angle)
         {
-            int newTaille = this.bitsPixel * this.largeur * this.largeur + this.tailleOffset, coordFinX = 0, coordFinY = 0;
+            int newTaille = this.bitsPixel * 4 * this.hauteur * this.largeur + this.tailleOffset, coordFinX = 0, coordFinY = 0;
             double centeredCoordHauteur = 0, centeredCoordLargeur = 0, newCoordHauteur = 0, newCoordLargeur = 0;
 
-            MyImage newImage = new MyImage(this.type, this.largeur, this.largeur, newTaille, this.tailleOffset);
-            Pixel[,] image = new Pixel[this.largeur, this.largeur];
+            MyImage newImage = new MyImage(this.type, this.largeur*2, this.hauteur*2, newTaille, this.tailleOffset);
+            Pixel[,] image = new Pixel[this.hauteur*2, this.largeur*2];
 
             angle = ConvertDegreeToRad(angle);
 
