@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
 
 namespace ProjetCode
 {
@@ -133,7 +134,145 @@ namespace ProjetCode
             
         }
 
+        #region algo
+
+        /// <summary>
+        /// Algorithm permettant de créer une image avec la fractale de Mandelbrot
+        /// </summary>
+        /// <param name="iterationMax">Nombre d'itérations maximum pour le calcul de la convergence</param>
+        /// <returns>Une image contenant la fractale de Mandelbrot</returns>
+        public static MyImage MandelBrot(int iterationMax)
+        {
+            // Toujours entre -2.1 et 0.6 pour abscisse et -1.2 et 1.2 en ordonnée
+            double minRe = -2.0, maxRe = 1.0, minIm = -1.2, maxIm = 1.2;
+
+            // Ratio entre le plan et l'image
+            int ratio = 1000,
+                fractLargeur = (int)((maxRe - minRe) * ratio),
+                fractHauteur = (int)((maxIm - minIm) * ratio);
+
+            // Ratio pour avoir les coordonées à l'échelle de base
+            double imRatio = (maxIm - minIm) / (fractHauteur - 1),
+                   reRatio = (maxRe - minRe) / (fractLargeur - 1);
+
+            while ((fractLargeur % 4) != 0)
+            {
+                fractLargeur++;
+            }
+
+            MyImage fractale = new MyImage("bmp", fractLargeur, fractHauteur, fractLargeur*fractHauteur*3 + 54, 54);
+            Pixel[,] fractalePixels = new Pixel[fractHauteur, fractLargeur];
+
+            for (int x = 0; x < fractLargeur; x++)
+            {
+                for (int y = 0; y < fractHauteur; y++)
+                {
+                    Complex c = new Complex(minRe + x * reRatio, maxIm - y * imRatio),
+                            z = new Complex(0, 0);
+                    int compteur = 0;
+                    double smooth = Math.Log(Math.Log(z.Real * z.Real + z.Imaginary * z.Imaginary) / 2);
+
+                    do
+                    {
+                        z = z*z + c;
+                        compteur++;
+                    } while ((compteur < iterationMax) && (z.Magnitude < 4));
+
+                    if (compteur == iterationMax)
+                    {
+                        fractalePixels[y, x] = new Pixel(y, x, 0, 0, 0);
+                    }else
+                    {
+                        fractalePixels[y, x] = new Pixel(y, x, (byte)(compteur + 20 - Math.Log(Math.Log10(z.Magnitude))), (byte)(compteur + 20 - Math.Log(Math.Log10(z.Magnitude))), 40);
+                    }
+                }
+            }
+
+            /*
+             double smoothed = Math.Log2(Math.Log2(re * re + im * im) / 2);  // log_2(log_2(|p|))
+             int colorI = (int)(Math.Sqrt(i + 10 - smoothed) * gradient.Scale) % colors.Length;
+             Color color = colors[colorI];
+            */
+
+            fractale.PixelsImage = fractalePixels;
+
+            Console.WriteLine("Done");
+
+            return fractale;
+        }
+        #endregion
+
         #region actions
+
+        /// <summary>
+        /// Filtre de convolution : détection de contours
+        /// </summary>
+        /// <returns>un nouvelle image avec le filtre</returns>
+        public MyImage DetectContours()
+        {
+            MyImage newImage = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
+            double[,] convolution = new double[3, 3] { { -1, -1, -1 }, { -1, 8, -1}, { -1, -1, -1 } };
+
+            newImage.PixelsImage = ApplyConvolution(this.pixelsImage, convolution);
+
+            return newImage;
+        }
+
+        /// <summary>
+        /// Filtre de convolution : Repoussage
+        /// </summary>
+        /// <returns>un nouvelle image avec le filtre</returns>
+        public MyImage Repoussage()
+        {
+            MyImage newImage = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
+            double[,] convolution = new double[3, 3] { { -2, -1, 0 }, { -1, 1, 1 }, { 0, 1, 2 } };
+
+            newImage.PixelsImage = ApplyConvolution(this.pixelsImage, convolution);
+
+            return newImage;
+        }
+
+        /// <summary>
+        /// Filtre de convolution : Renforcement des contours
+        /// </summary>
+        /// <returns>un nouvelle image avec le filtre</returns>
+        public MyImage RenforceContours()
+        {
+            MyImage newImage = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
+            double[,] convolution = new double[3, 3] { { 0, 0, 0 }, { -1, 1, 0 }, { 0, 0, 0 } };
+
+            newImage.PixelsImage = ApplyConvolution(this.pixelsImage, convolution);
+
+            return newImage;
+        }
+
+        /// <summary>
+        /// Filtre de convolution : Renforcement des contrastes
+        /// </summary>
+        /// <returns>un nouvelle image avec le filtre</returns>
+        public MyImage RenforceContrastes()
+        {
+            MyImage newImage = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
+            double[,] convolution = new double[3, 3] { { 0, -1, 0 }, { -1, 5, -1 }, { 0, -1, 0 } };
+
+            newImage.PixelsImage = ApplyConvolution(this.pixelsImage, convolution);
+
+            return newImage;
+        }
+
+        /// <summary>
+        /// Filtre de convolution : Flou
+        /// </summary>
+        /// <returns>un nouvelle image avec le filtre</returns>
+        public MyImage Blur()
+        {
+            MyImage newImage = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
+            double[,] convolution = new double[3, 3] { { 0.11, 0.11, 0.11 }, { 0.11, 0.11, 0.11 }, { 0.11, 0.11, 0.11 } };
+
+            newImage.PixelsImage = ApplyConvolution(this.pixelsImage, convolution);
+
+            return newImage;
+        }
 
         /// <summary>
         /// Permet de faire une symétrie par rapport à l'horizontale
@@ -177,13 +316,30 @@ namespace ProjetCode
         /// <param name="angle">Angle de rotation en degrés</param>
         public MyImage Rotate(double angle)
         {
-            int newTaille = this.bitsPixel * 4 * this.hauteur * this.largeur + this.tailleOffset, coordFinX = 0, coordFinY = 0;
+            double angleDim = angle;
+            int initCoordLargeur = this.largeur, initCoordHauteur = this.hauteur, newLargeur = 0, newHauteur = 0;
+
+            // Calcul des nouvelles dimensions de l'image
+            if (angle >= 90)
+            {
+                initCoordLargeur = this.hauteur;
+                initCoordHauteur = this.largeur;
+                angleDim = angle - 90;
+            }
+
+            angleDim = ConvertDegreeToRad(angleDim);
+            angle = ConvertDegreeToRad(angle);
+
+            newHauteur = (int)(Math.Cos(angleDim) * initCoordHauteur + Math.Sin(angleDim) * initCoordLargeur);
+            newLargeur = (int)(Math.Sin(angleDim) * initCoordHauteur + Math.Cos(angleDim) * initCoordLargeur);
+
+            newLargeur = ToFormat4(newLargeur);
+
+            int newTaille = this.bitsPixel * newLargeur * newHauteur + this.tailleOffset, coordFinX = 0, coordFinY = 0;
             double centeredCoordHauteur = 0, centeredCoordLargeur = 0, newCoordHauteur = 0, newCoordLargeur = 0;
 
-            MyImage newImage = new MyImage(this.type, this.largeur*2, this.hauteur*2, newTaille, this.tailleOffset);
-            Pixel[,] image = new Pixel[this.hauteur*2, this.largeur*2];
-
-            angle = ConvertDegreeToRad(angle);
+            MyImage newImage = new MyImage(this.type, newLargeur, newHauteur, newTaille, this.tailleOffset);
+            Pixel[,] image = new Pixel[newHauteur, newLargeur];
 
             // On remplit l'image d'arrivée
             for (int i = 0; i < image.GetLength(0); i++)
@@ -195,7 +351,7 @@ namespace ProjetCode
                     centeredCoordLargeur = j - (newImage.Largeur / 2);
 
                     // Transformation des coordonnées pour obtenir celles de l'image de base
-                    newCoordHauteur = Math.Cos(-1 * angle) * centeredCoordHauteur + Math.Sin(-1 *angle) * centeredCoordLargeur;
+                    newCoordHauteur = Math.Cos(-1 * angle) * centeredCoordHauteur + Math.Sin(-1 * angle) * centeredCoordLargeur;
                     newCoordLargeur = Math.Cos(-1 * angle) * centeredCoordLargeur - Math.Sin(-1 * angle) * centeredCoordHauteur;
 
                     // On remet les coordonnées sur le repère de base de l'image originale
@@ -224,15 +380,15 @@ namespace ProjetCode
         public MyImage Minimize(int ratio)
         {
             double initNewHauteur = this.hauteur / ratio, initNewLargeur = this.largeur / ratio;
-            int[] dimensions = new int[2] { (int)initNewHauteur, (int)initNewLargeur };
+            int newLargeur = 0;
 
-            // Ajustement des dimensions de l'image pour qu'elles soient divisibles pas 4
-            ToFormat4(dimensions);
+            // Ajustement de la largeur de l'image pour qu'elle soit divisible par 4
+            newLargeur = ToFormat4((int)initNewLargeur);
 
-            int averageR = 0, averageG = 0, averageB = 0, newTaille = (dimensions[0] * dimensions[1] * this.bitsPixel) + this.tailleOffset;
+            int averageR = 0, averageG = 0, averageB = 0, newTaille = (int)(newLargeur * initNewHauteur * this.bitsPixel) + this.tailleOffset;
 
-            MyImage newImage = new MyImage(this.type, dimensions[1], dimensions[0], newTaille, this.tailleOffset);
-            Pixel[,] image = new Pixel[newImage.Hauteur, newImage.Largeur];
+            MyImage newImage = new MyImage(this.type, newLargeur, (int)initNewHauteur, newTaille, this.tailleOffset);
+            Pixel[,] image = new Pixel[newImage.Hauteur, newLargeur];
 
             // On parcourt toute la matrice en faisant des carrées de côté ratio
             for (int i = 0; i < (initNewHauteur * ratio); i += ratio)
@@ -263,7 +419,7 @@ namespace ProjetCode
             }
 
             // Si jamais les dimensions initiales n'étaient pas divisibles pas 4, on comble les trous par des pixels noirs
-            if ((int)initNewHauteur != dimensions[0] && (int)initNewLargeur != dimensions[1])
+            if ((int)initNewLargeur != newLargeur)
             {
                 CompleteWithBlackPixels(image);
             }
@@ -517,7 +673,85 @@ namespace ProjetCode
 
         #endregion
 
-        #region tools
+        #region tools 
+
+        /// <summary>
+        /// Permet d'appliquer un filtre de convolution à une matrice
+        /// </summary>
+        /// <param name="image">Matrice des pixels de l'image à modifier</param>
+        /// <param name="convolution">Matrice de convolution du filtre</param>
+        /// <returns>Un nouvelle matrice de pixel avec le filtre</returns>
+        private Pixel[,] ApplyConvolution(Pixel[,] image, double[,] convolution)
+        {
+            double currentTotal = 0;
+            Pixel[,] newImage = new Pixel[image.GetLength(0), image.GetLength(1)];
+
+            // On parcourt la matrice finale
+            for (int i = 0; i < newImage.GetLength(0); i++)
+            {
+                for (int j = 0; j < newImage.GetLength(1); j++)
+                {
+                    newImage[i, j] = new Pixel(i, j, 0, 0, 0);
+
+                    // Pour chaque pixel de l'image originale correspondant
+                    for (int k = 0; k < 3; k++)
+                    {
+                        // On détermine l'octet à modifier
+                        for (int l = -1; l <= 1; l++)
+                        {
+                            if ((i + l) < image.GetLength(0) && (i + l) >= 0)
+                            {
+                                for (int m = -1; m <= 1; m++)
+                                {
+                                    if ((j + m) < image.GetLength(1) && (j + m) >= 0)
+                                    {
+                                        switch (k)
+                                        {
+                                            case 0:
+                                                currentTotal += image[i + l, j + m].Red * convolution[l + 1, m + 1];
+                                                break;
+                                            case 1:
+                                                currentTotal += image[i + l, j + m].Green * convolution[l + 1, m + 1];
+                                                break;
+                                            case 2:
+                                                currentTotal += image[i + l, j + m].Blue * convolution[l + 1, m + 1];
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        //On détermine si l'octe tdoit être modifié
+                        if(currentTotal > 255)
+                        {
+                            currentTotal = 255;
+                        }else if (currentTotal < 0)
+                        {
+                            currentTotal = 0;
+                        }
+
+                        //Attribution de la valeur
+                        switch (k)
+                        {
+                            case 0:
+                                newImage[i, j].Red = (int)currentTotal;
+                                break;
+                            case 1:
+                                newImage[i, j].Green = (int)currentTotal;
+                                break;
+                            case 2:
+                                newImage[i, j].Blue = (int)currentTotal;
+                                break;
+                        }
+
+                        currentTotal = 0;
+                    }
+                }
+            }
+
+            return newImage;
+        }
 
         /// <summary>
         /// Permet d'insérer un tableau de byte en little endian
@@ -640,23 +874,18 @@ namespace ProjetCode
         }
 
         /// <summary>
-        /// Permet de rendre les dimensions d'une image divisibles par 4
+        /// Permet de rendre la largeur d'une image divisible par 4
         /// </summary>
-        /// <param name="dimensions">Dimensions à (éventuellement) modifier</param>
-        private void ToFormat4(int[] dimensions)
+        /// <param name="largeur">Dimension à (éventuellement) modifier</param>
+        /// <returns>La nouvelle largeur</returns>
+        private int ToFormat4(int largeur)
         {
-            while ((dimensions[0] % 4) != 0 || (dimensions[1] % 4) != 0)
+            while ((largeur % 4) != 0)
             {
-                if ((dimensions[0] % 4) != 0)
-                {
-                    dimensions[0]++;
-                }
-
-                if ((dimensions[1] % 4) != 0)
-                {
-                    dimensions[1]++;
-                }
+                largeur++;
             }
+
+            return largeur;
         }
 
         /// <summary>
