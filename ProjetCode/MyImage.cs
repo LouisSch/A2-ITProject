@@ -130,8 +130,6 @@ namespace ProjetCode
                     WriteCSV(datas, chemin);
                     break;
             }
-
-            
         }
 
         #region algo
@@ -203,6 +201,62 @@ namespace ProjetCode
         #endregion
 
         #region actions
+
+        /// <summary>
+        /// Crée une image contenant l'histogramme des couleurs d'une image.
+        /// </summary>
+        /// <param name="couleur">La couleur à analyser (R, G ou B, défaut à R).</param>
+        /// <returns>Une image contenant l'histogramme de la couleur analysée.</returns>        
+        public MyImage HistogrammeCouleurs(char couleur='R')
+        {
+            MyImage newImage = new MyImage("bmp", 512, 150, 230454, 54);
+            Pixel[,] pixels = new Pixel[150, 512];
+            Pixel pixelHistogramme = null;
+            int[] compteurCouleurs = new int[256];
+            int ratio = pixels.GetLength(1) / 256, maxHeight = 0;
+
+            // On compte toutes les teintes de la couleur choisie
+            compteurCouleurs = CountPixelShades(couleur);
+
+            int maxValue = Max(compteurCouleurs);
+
+            switch (couleur)
+            {
+                case 'G':
+                    pixelHistogramme = new Pixel(0, 0, 0, 255, 0);
+                    break;
+                case 'B':
+                    pixelHistogramme = new Pixel(0, 0, 0, 0, 255);
+                    break;
+                default:
+                    pixelHistogramme = new Pixel(0, 0, 255, 0, 0);
+                    break;
+            }
+
+            // On parcourt l'image initiale
+            for (int i = 0; i < pixels.GetLength(0); i++)
+            {
+                // On incrémente du ratio entre la largeur de l'histogramme et le nombre de teintes
+                for (int j = 0; j < pixels.GetLength(1); j += ratio)
+                {
+                    for (int k = 0; k < ratio; k++)
+                    {
+                        // On établit la hauteur maximale de chaque pic grâce au compteur de teinte
+                        maxHeight = Convert.ToInt32(Math.Round((double)(compteurCouleurs[j / ratio] * ((double)pixels.GetLength(0) / (double)maxValue))));
+
+                        if (maxHeight > i)
+                            pixels[i, j + k] = pixelHistogramme;
+                    }
+                }
+            }
+
+            newImage.pixelsImage = pixels;
+            newImage.SetBackground(new Pixel(0, 0, 200, 200, 200));
+
+            Console.WriteLine("Done");
+
+            return newImage;
+        }
 
         /// <summary>
         /// Filtre de convolution : détection de contours
@@ -303,7 +357,8 @@ namespace ProjetCode
             {
                 for (int j = this.pixelsImage.GetLength(0) - 1; j >= 0; j--)
                 {
-                    newImage[j, (this.largeur - 1) - i] = this.pixelsImage[j, i];
+                    if (this.pixelsImage[i, j] != null)
+                        newImage[j, (this.largeur - 1) - i] = this.pixelsImage[j, i];
                 }
             }
 
@@ -371,7 +426,7 @@ namespace ProjetCode
 
             return newImage;
         }
-
+        
         /// <summary>
         /// Permet de réduire la taille d'une image
         /// </summary>
@@ -674,6 +729,80 @@ namespace ProjetCode
         #endregion
 
         #region tools 
+
+        /// <summary>
+        /// Calcule le maximum d'un tableau d'entiers.
+        /// </summary>
+        /// <param name="table">Le tableau à évaluer.</param>
+        /// <returns>Retourne le max du tableau.</returns>
+        private int Max(int[] table)
+        {
+            int result = 0;
+
+            foreach (int e in table)
+            {
+                if (e > result)
+                    result = e;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permet de compter les différentes nuances d'une couleur dans une image.
+        /// </summary>
+        /// <param name="couleur">Couleur à compter.</param>
+        /// <returns>Un tableau avec le comptage des 256 nuances.</returns>
+        private int[] CountPixelShades(char couleur = 'R')
+        {
+            int[] result = new int[256];
+            int couleurTemp = 0;
+
+            for (int i = 0; i < 256; i++)
+            {
+                for (int k = 0; k < this.pixelsImage.GetLength(0); k++)
+                {
+                    for (int l = 0; l < this.pixelsImage.GetLength(1); l++)
+                    {
+                        switch (couleur)
+                        {
+                            case 'G':
+                                couleurTemp = this.pixelsImage[k, l].Green;
+                                break;
+                            case 'B':
+                                couleurTemp = this.pixelsImage[k, l].Blue;
+                                break;
+                            default:
+                                couleurTemp = this.pixelsImage[k, l].Red;
+                                break;
+                        }
+
+                        if (couleurTemp == i)
+                        {
+                            result[i]++;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permet de définir une couleur d'arrière plan pour une image
+        /// </summary>
+        /// <param name="pixel">Pixel d'arrière plan</param>
+        public void SetBackground(Pixel pixel)
+        {
+            for (int i = 0; i < this.pixelsImage.GetLength(0); i++)
+            {
+                for (int j = 0; j < this.pixelsImage.GetLength(1); j++)
+                {
+                    if (this.pixelsImage[i, j] == null)
+                        this.pixelsImage[i, j] = pixel;
+                }
+            }
+        } 
 
         /// <summary>
         /// Permet d'appliquer un filtre de convolution à une matrice

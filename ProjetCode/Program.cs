@@ -11,12 +11,12 @@ namespace ProjetCode
     {
         static void Main(string[] args)
         {
-            /*MyImage image = new MyImage("/bin/Debug/Images/testLol.bmp");
-            MyImage newImage = image.Rotate(76);
-            newImage.FromImageToFile("/bin/Debug/Exports/ExportTest.bmp");*/
+            MyImage image = new MyImage("/bin/Debug/Images/Coco.bmp");
+            MyImage blur = image.Repoussage();
+            blur.FromImageToFile("/bin/Debug/Exports/Repouss.bmp");
 
-            MyImage MandelBrot = MyImage.MandelBrot(100);
-            MandelBrot.FromImageToFile("/bin/Debug/Exports/ExportMandelbrot.bmp");
+            /*MyImage histogramme = image.HistogrammeCouleurs('B');
+            histogramme.FromImageToFile("/bin/Debug/Exports/ExportTest.bmp");*/
 
             Console.ReadKey();
         }
