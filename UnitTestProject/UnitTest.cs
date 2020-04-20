@@ -41,5 +41,17 @@ namespace ProjetCode
 
             CollectionAssert.AreEqual(headerInfoPart, headerToCompare);
         }
+
+        [TestMethod]
+        public void TestConvertByteToBinary()
+        {
+            CollectionAssert.AreEqual(new int[8] { 1, 1, 1, 1, 1, 1, 1, 1 }, MyImage.ConvertByteToBinary(255, 8));
+        }
+
+        [TestMethod]
+        public void TestConvertBinaryToByte()
+        {
+            Assert.AreEqual(123, MyImage.ConvertBinaryToByte(new int[8] { 0, 1, 1, 1, 1, 0, 1, 1 }));
+        }
     }
 }

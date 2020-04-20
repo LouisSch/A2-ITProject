@@ -96,6 +96,14 @@ namespace ProjetCode
         {
             get { return this.hauteur; }
         }
+
+        /// <summary>
+        ///  Propriétés de tailleOffset
+        /// </summary>
+        public int TailleOffset
+        {
+            get { return this.tailleOffset; }
+        }
         #endregion
 
         #region methodes
@@ -109,26 +117,31 @@ namespace ProjetCode
             byte[] datas = new byte[this.taille];
             string extensionExport = Path.GetExtension(chemin);
 
-            // Construction en-tête
-            switch (this.type)
-            {
-                case "BMP":
-                    datas = BuildBMPHeader(datas);
-                    break;
-                default:
-                    datas = BuildBMPHeader(datas);
-                    break;
-            }
+            if (this.pixelsImage != null) {
+                // Construction en-tête
+                switch (this.type)
+                {
+                    case "BMP":
+                        datas = BuildBMPHeader(datas);
+                        break;
+                    default:
+                        datas = BuildBMPHeader(datas);
+                        break;
+                }
 
-            // Ecriture
-            switch (extensionExport)
+                // Ecriture
+                switch (extensionExport)
+                {
+                    case ".bmp":
+                        WriteBMP(datas, chemin);
+                        break;
+                    case ".csv":
+                        WriteCSV(datas, chemin);
+                        break;
+                }
+            }else
             {
-                case ".bmp":
-                    WriteBMP(datas, chemin);
-                    break;
-                case ".csv":
-                    WriteCSV(datas, chemin);
-                    break;
+                Console.WriteLine("Impossible d'exporter l'image : objet null.");
             }
         }
 
@@ -141,11 +154,10 @@ namespace ProjetCode
         /// <returns>Une image contenant la fractale de Mandelbrot</returns>
         public static MyImage MandelBrot(int iterationMax)
         {
-            // Toujours entre -2.1 et 0.6 pour abscisse et -1.2 et 1.2 en ordonnée
             double minRe = -2.0, maxRe = 1.0, minIm = -1.2, maxIm = 1.2;
 
             // Ratio entre le plan et l'image
-            int ratio = 1000,
+            int ratio = 500,
                 fractLargeur = (int)((maxRe - minRe) * ratio),
                 fractHauteur = (int)((maxIm - minIm) * ratio);
 
@@ -168,7 +180,6 @@ namespace ProjetCode
                     Complex c = new Complex(minRe + x * reRatio, maxIm - y * imRatio),
                             z = new Complex(0, 0);
                     int compteur = 0;
-                    double smooth = Math.Log(Math.Log(z.Real * z.Real + z.Imaginary * z.Imaginary) / 2);
 
                     do
                     {
@@ -186,11 +197,65 @@ namespace ProjetCode
                 }
             }
 
-            /*
-             double smoothed = Math.Log2(Math.Log2(re * re + im * im) / 2);  // log_2(log_2(|p|))
-             int colorI = (int)(Math.Sqrt(i + 10 - smoothed) * gradient.Scale) % colors.Length;
-             Color color = colors[colorI];
-            */
+            fractale.PixelsImage = fractalePixels;
+
+            Console.WriteLine("Done");
+
+            return fractale;
+        }
+
+        /// <summary>
+        /// Algorithme permettant de créer une image avec la fractale de Julia.
+        /// </summary>
+        /// <param name="iterationMax">Nombre d'itérations maximum pour le calcul de la convergence.</param>
+        /// <param name="cRe">Valeur de la partie réelle de la constante.</param>
+        /// <param name="cIm">Valeur de la partie imaginaire de la constante.</param>
+        /// <returns></returns>
+        public static MyImage Julia(int iterationMax, double cRe, double cIm)
+        {
+            double minRe = -2.1, maxRe = 2.0, minIm = -1.2, maxIm = 1.2;
+
+            // Ratio entre le plan et l'image
+            int ratio = 500,
+                fractLargeur = (int)((maxRe - minRe) * ratio),
+                fractHauteur = (int)((maxIm - minIm) * ratio);
+
+            // Ratio pour avoir les coordonées à l'échelle de base
+            double imRatio = (maxIm - minIm) / (fractHauteur - 1),
+                   reRatio = (maxRe - minRe) / (fractLargeur - 1);
+
+            while ((fractLargeur % 4) != 0)
+            {
+                fractLargeur++;
+            }
+
+            MyImage fractale = new MyImage("bmp", fractLargeur, fractHauteur, fractLargeur * fractHauteur * 3 + 54, 54);
+            Pixel[,] fractalePixels = new Pixel[fractHauteur, fractLargeur];
+
+            for (int x = 0; x < fractLargeur; x++)
+            {
+                for (int y = 0; y < fractHauteur; y++)
+                {
+                    Complex c = new Complex(cRe, cIm),
+                            z = new Complex(minRe + x * reRatio, minIm + y * imRatio);
+                    int compteur = 0;
+
+                    do
+                    {
+                        z = z * z + c;
+                        compteur++;
+                    } while ((compteur < iterationMax) && (z.Magnitude < 4));
+
+                    if (compteur == iterationMax)
+                    {
+                        fractalePixels[y, x] = new Pixel(y, x, 255, 255, 255);
+                    }
+                    else
+                    {
+                        fractalePixels[y, x] = new Pixel(y, x, (byte)(Math.Sqrt(compteur / iterationMax)), (byte)(compteur + 20 - Math.Log(Math.Log10(z.Magnitude))), (byte)(compteur + 20 - Math.Log(Math.Log10(z.Magnitude))));
+                    }
+                }
+            }
 
             fractale.PixelsImage = fractalePixels;
 
@@ -203,35 +268,182 @@ namespace ProjetCode
         #region actions
 
         /// <summary>
+        /// Permet de décrypter une image codée dans une image.
+        /// </summary>
+        /// <param name="image">L'image servant de clé pour le décryptage.</param>
+        /// <returns>L'image cachée.</returns>
+        public MyImage DecryptWithImage(MyImage image)
+        {
+            MyImage decryptedImage = null;
+
+            if (this.largeur == image.Largeur && this.hauteur == image.Hauteur) {
+                int[] dim = GetCryptedImageData(image);
+                int[][] octetSource = new int[3][], octetImage = new int[3][], octetDecrypted = new int[3][];
+                int targetColorSource = 0, targetColorImage = 0;
+
+                decryptedImage = new MyImage("bmp", dim[1], dim[0], dim[0] * dim[1] * this.bitsPixel + this.tailleOffset, this.tailleOffset);
+                Pixel[,] pixels = new Pixel[dim[0], dim[1]];
+
+                decryptedImage.PixelsImage = pixels;
+                decryptedImage.SetBackground(new Pixel(0, 0, 255, 255, 255));
+
+                if (dim[0] != 0 && dim[1] != 0)
+                {
+                    for (int i = 0; i < dim[0]; i++)
+                    {
+                        for (int j = 0; j < dim[1]; j++)
+                        {
+                            for (int k = 0; k < 3; k++)
+                            {
+                                switch (k)
+                                {
+                                    case 0:
+                                        targetColorSource = this.pixelsImage[i, j].Red;
+                                        targetColorImage = image.PixelsImage[i, j].Red;
+                                        break;
+                                    case 1:
+                                        targetColorSource = this.pixelsImage[i, j].Green;
+                                        targetColorImage = image.PixelsImage[i, j].Green;
+                                        break;
+                                    case 2:
+                                        targetColorSource = this.pixelsImage[i, j].Blue;
+                                        targetColorImage = image.PixelsImage[i, j].Blue;
+                                        break;
+                                }
+
+                                // On définit l'octet en binaire
+                                octetSource[k] = ConvertByteToBinary((byte)targetColorSource, 8);
+                                octetImage[k] = ConvertByteToBinary((byte)targetColorImage, 8);
+
+                                // On effectue le cryptage
+                                for (int l = 0; l < 4; l++)
+                                {
+                                    if (octetDecrypted[k] == null)
+                                        octetDecrypted[k] = new int[8];
+
+                                    octetDecrypted[k][l] = xOr(octetSource[k][4 + l], octetImage[k][l]);
+                                    octetDecrypted[k][octetDecrypted[k].Length - 1 - l] = 0;
+                                }
+                            }
+
+                            pixels[i, j] = new Pixel(i, j, (int)ConvertBinaryToByte(octetDecrypted[0]), (int)ConvertBinaryToByte(octetDecrypted[1]), (int)ConvertBinaryToByte(octetDecrypted[2]));
+                        }
+                    }
+
+                    decryptedImage.PixelsImage = pixels;
+                } else
+                {
+                    Console.WriteLine("Il n'y a pas d'image cryptée.");
+                }
+
+                Console.WriteLine("Done");
+            }else
+            {
+                decryptedImage = this;
+                Console.WriteLine("L'image de décryptage doit être de la même taille que l'image.");
+            }
+
+            return decryptedImage;
+        }
+
+        /// <summary>
+        /// Permet de crypter une image grâce à une autre image
+        /// </summary>
+        /// <param name="image">L'image à utiliser pour crypter l'image (ses dimensions doivent être au moins égales à celle de l'image à crypter).</param>
+        /// <returns>Retourne l'image cryptée.</returns>
+        public MyImage CryptWithImage(MyImage image)
+        {
+            MyImage cryptedImage = new MyImage("bmp", image.Largeur, image.Hauteur, image.taille, image.TailleOffset);
+            Pixel[,] pixels = new Pixel[image.Hauteur, image.Largeur];
+            int targetColorSource = 0, targetColorImage = 0;
+            int[][] octetSource = new int[3][], octetImage = new int[3][], octetCrypted = new int[3][];
+
+            cryptedImage.PixelsImage = pixels;
+            cryptedImage.SetBackground(new Pixel(0, 0, 255, 255, 255));
+
+            // On vérifie si les dimesions de l'image à crypter sont plus petites que celle utilisée pour crypter
+            if (image.Largeur >= this.largeur && image.Hauteur >= this.hauteur)
+            {
+                // On parcourt l'image la plus grande
+                for (int i = 0; i < image.PixelsImage.GetLength(0); i++)
+                {
+                    for (int j = 0; j < image.PixelsImage.GetLength(1); j++)
+                    {
+                        // On vérifie que les coordonnées soient communes aux deux images
+                        if (i < this.pixelsImage.GetLength(0) && j < this.pixelsImage.GetLength(1))
+                        {
+                            // On exécute le cryptage pour R, G et B
+                            for (int k = 0; k < 3; k++)
+                            {
+                                switch (k)
+                                {
+                                    case 0:
+                                        targetColorSource = this.pixelsImage[i, j].Red;
+                                        targetColorImage = image.PixelsImage[i, j].Red;
+                                        break;
+                                    case 1:
+                                        targetColorSource = this.pixelsImage[i, j].Green;
+                                        targetColorImage = image.PixelsImage[i, j].Green;
+                                        break;
+                                    case 2:
+                                        targetColorSource = this.pixelsImage[i, j].Blue;
+                                        targetColorImage = image.PixelsImage[i, j].Blue;
+                                        break;
+                                }
+
+                                // On définit l'octet en binaire
+                                octetSource[k] = ConvertByteToBinary((byte)targetColorSource, 8);
+                                octetImage[k] = ConvertByteToBinary((byte)targetColorImage, 8);
+
+                                // On effectue le cryptage
+                                for (int l = 0; l < 4; l++)
+                                {
+                                    if (octetCrypted[k] == null)
+                                        octetCrypted[k] = new int[8];
+
+                                    octetCrypted[k][l] = octetImage[k][l];
+                                    octetCrypted[k][4 + l] = xOr(octetSource[k][l], octetImage[k][l]);
+                                }
+                            }
+
+                            pixels[i, j] = new Pixel(0, 0, (int)ConvertBinaryToByte(octetCrypted[0]), (int)ConvertBinaryToByte(octetCrypted[1]), (int)ConvertBinaryToByte(octetCrypted[2]));
+                        }
+                        else
+                        {
+                            pixels[i, j] = image.PixelsImage[i, j];
+                        }
+                    }
+                }
+
+                cryptedImage.PixelsImage = pixels;
+            }
+            else
+            {
+                Console.WriteLine("Les dimensions de l'image cryptée doivent être au maximum égales à celle de l'image utilisée.");
+            }
+
+            Console.WriteLine("Done");
+
+            return cryptedImage;
+        }
+
+        /// <summary>
         /// Crée une image contenant l'histogramme des couleurs d'une image.
         /// </summary>
         /// <param name="couleur">La couleur à analyser (R, G ou B, défaut à R).</param>
         /// <returns>Une image contenant l'histogramme de la couleur analysée.</returns>        
-        public MyImage HistogrammeCouleurs(char couleur='R')
+        public MyImage HistogrammeCouleurs()
         {
             MyImage newImage = new MyImage("bmp", 512, 150, 230454, 54);
             Pixel[,] pixels = new Pixel[150, 512];
-            Pixel pixelHistogramme = null;
-            int[] compteurCouleurs = new int[256];
-            int ratio = pixels.GetLength(1) / 256, maxHeight = 0;
+            Pixel[] pixelsHistogramme = new Pixel[3] { new Pixel(0, 0, 255, 0, 0), new Pixel(0, 0, 0, 255, 0), new Pixel(0, 0, 0, 0, 255) };
+            int[,] compteurCouleurs = new int[3, 256];
+            int[] maxHeight = new int[3];
+            int ratio = pixels.GetLength(1) / 256;
 
             // On compte toutes les teintes de la couleur choisie
-            compteurCouleurs = CountPixelShades(couleur);
-
-            int maxValue = Max(compteurCouleurs);
-
-            switch (couleur)
-            {
-                case 'G':
-                    pixelHistogramme = new Pixel(0, 0, 0, 255, 0);
-                    break;
-                case 'B':
-                    pixelHistogramme = new Pixel(0, 0, 0, 0, 255);
-                    break;
-                default:
-                    pixelHistogramme = new Pixel(0, 0, 255, 0, 0);
-                    break;
-            }
+            compteurCouleurs = CountPixelShades();
+            int maxValue = MaxMatrix(compteurCouleurs);
 
             // On parcourt l'image initiale
             for (int i = 0; i < pixels.GetLength(0); i++)
@@ -241,17 +453,22 @@ namespace ProjetCode
                 {
                     for (int k = 0; k < ratio; k++)
                     {
-                        // On établit la hauteur maximale de chaque pic grâce au compteur de teinte
-                        maxHeight = Convert.ToInt32(Math.Round((double)(compteurCouleurs[j / ratio] * ((double)pixels.GetLength(0) / (double)maxValue))));
+                        // On établit la hauteur maximale (pour chaque couleur) de chaque pic grâce au compteur de teintes
+                        maxHeight[0] = Convert.ToInt32(Math.Round((double)(compteurCouleurs[0, j / ratio] * ((double)pixels.GetLength(0) / (double)maxValue))));
+                        maxHeight[1] = Convert.ToInt32(Math.Round((double)(compteurCouleurs[1, j / ratio] * ((double)pixels.GetLength(0) / (double)maxValue))));
+                        maxHeight[2] = Convert.ToInt32(Math.Round((double)(compteurCouleurs[2, j / ratio] * ((double)pixels.GetLength(0) / (double)maxValue))));
 
-                        if (maxHeight > i)
-                            pixels[i, j + k] = pixelHistogramme;
+                        for (int l = 0; l < 3; l++)
+                        {
+                            if (maxHeight[l] > i)
+                                pixels[i, j + k] = pixelsHistogramme[l]; 
+                        }
                     }
                 }
             }
 
             newImage.pixelsImage = pixels;
-            newImage.SetBackground(new Pixel(0, 0, 200, 200, 200));
+            newImage.SetBackground(new Pixel(0, 0, 110, 110, 110));
 
             Console.WriteLine("Done");
 
@@ -728,60 +945,139 @@ namespace ProjetCode
 
         #endregion
 
-        #region tools 
+        #region tools
 
         /// <summary>
-        /// Calcule le maximum d'un tableau d'entiers.
+        /// Permet de déterminer les dimensions d'une image cryptée par une autre.
         /// </summary>
-        /// <param name="table">Le tableau à évaluer.</param>
-        /// <returns>Retourne le max du tableau.</returns>
-        private int Max(int[] table)
+        /// <param name="keyImage">L'image clé.</param>
+        /// <returns>Les dimensions de l'image.</returns>
+        private int[] GetCryptedImageData(MyImage keyImage)
+        {
+            int[] result = new int[2];
+
+            // Calcul de la hauteur
+            for (int i = 0; i < this.PixelsImage.GetLength(0); i++)
+            {
+                if (!this.PixelsImage[i, 0].Equals(keyImage.PixelsImage[i, 0]))
+                {
+                    result[0]++;
+                }else
+                {
+                    break;
+                }
+            }
+
+            // Calcul de la largeur
+            for (int j = 0; j < this.PixelsImage.GetLength(1); j++)
+            {
+                if (!this.PixelsImage[0, j].Equals(keyImage.PixelsImage[0, j]))
+                {
+                    result[1]++;
+                }else
+                {
+                    break;
+                }
+            }
+
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permet d'effectuer un ou exclusif.
+        /// </summary>
+        /// <param name="a">Premier entier.</param>
+        /// <param name="b">Deuxième entier.</param>
+        /// <returns>1 ou 0 selon les cas.</returns>
+        private int xOr(int a, int b)
         {
             int result = 0;
 
-            foreach (int e in table)
+            if (a != b)
             {
-                if (e > result)
-                    result = e;
+                result = 1;
             }
 
             return result;
         }
 
         /// <summary>
-        /// Permet de compter les différentes nuances d'une couleur dans une image.
+        /// Permet de convertir un nombre binaire en octet.
         /// </summary>
-        /// <param name="couleur">Couleur à compter.</param>
-        /// <returns>Un tableau avec le comptage des 256 nuances.</returns>
-        private int[] CountPixelShades(char couleur = 'R')
+        /// <param name="binary">Nombre binaire à convertir.</param>
+        /// <returns>Le nombre convertit en octet.</returns>
+        public static byte ConvertBinaryToByte(int[] binary)
         {
-            int[] result = new int[256];
-            int couleurTemp = 0;
+            byte result = 0;
 
-            for (int i = 0; i < 256; i++)
+            for (int i = 0; i < binary.Length; i++)
             {
-                for (int k = 0; k < this.pixelsImage.GetLength(0); k++)
-                {
-                    for (int l = 0; l < this.pixelsImage.GetLength(1); l++)
-                    {
-                        switch (couleur)
-                        {
-                            case 'G':
-                                couleurTemp = this.pixelsImage[k, l].Green;
-                                break;
-                            case 'B':
-                                couleurTemp = this.pixelsImage[k, l].Blue;
-                                break;
-                            default:
-                                couleurTemp = this.pixelsImage[k, l].Red;
-                                break;
-                        }
+                result += (byte) (binary[i] * Math.Pow(2, (double)(binary.Length - i - 1)));
+            }
 
-                        if (couleurTemp == i)
-                        {
-                            result[i]++;
-                        }
-                    }
+            return result;
+        }
+
+        /// <summary>
+        /// Convertit un octet en binaire.
+        /// </summary>
+        /// <param name="b">L'octet à convertir.</param>
+        /// <param name="size">Le nombre de bit.</param>
+        /// <returns>Le nombre en binaire sur n bit.</returns>
+        public static int[] ConvertByteToBinary(byte b, int size)
+        {
+            int[] result = new int[size];
+            int partEntiere = 0, reste = 0;
+
+            for (int i = (size - 1); i >= 0; i--)
+            {
+                partEntiere = (int)Math.Floor((double)b / 2);
+                reste = (int)(b % (Math.Pow(2, Convert.ToDouble(i))));
+
+                result[i] = b - (2 * partEntiere);
+                b = (byte)partEntiere;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Calcule le maximum d'une matrice d'entiers.
+        /// </summary>
+        /// <param name="m"> La matrice à évaluer.</param>
+        /// <returns>Retourne le max de la matrice.</returns>
+        private int MaxMatrix(int[,] m)
+        {
+            int result = 0;
+
+            for (int i = 0; i < m.GetLength(0); i++)
+            {
+                for (int j = 0; j < m.GetLength(1); j++)
+                {
+                    if (m[i, j] > result)
+                        result = m[i, j];
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Permet de compter les différentes nuances des couleurs dans une image.
+        /// </summary>
+        /// <returns>Un tableau avec le comptage des 256 nuances de chaque couleur.</returns>
+        private int[,] CountPixelShades()
+        {
+            int[,] result = new int[3, 256];
+
+            for (int i = 0; i < this.pixelsImage.GetLength(0); i++)
+            {
+                for (int j = 0; j < this.pixelsImage.GetLength(1); j++)
+                {
+                    result[0, this.pixelsImage[i, j].Red]++;
+                    result[1, this.pixelsImage[i, j].Green]++;
+                    result[2, this.pixelsImage[i, j].Blue]++;
                 }
             }
 

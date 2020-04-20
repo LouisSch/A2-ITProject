@@ -58,20 +58,35 @@ namespace ProjetCode
         #endregion
 
         #region methodes
+        
+        /// <summary>
+        /// Permet de savoir si deux pixel sont égaux.
+        /// </summary>
+        /// <param name="pixel">Le deuxième pixel à tester.</param>
+        /// <returns>True s'ils sont égaux, false sinon.</returns>
+        public bool Equals(Pixel pixel)
+        {
+            bool result = false;
+
+            if (pixel.Red == this.R && pixel.Green == this.G && pixel.Blue == this.B)
+                result = true;
+
+            return result;
+        }
 
         /// <summary>
-        /// Permet de récupérer les valeurs r, v, b d'un pixel
+        /// Permet de récupérer les valeurs r, v, b d'un pixel.
         /// </summary>
-        /// <returns>Tableau contenant les valeurs</returns>
+        /// <returns>Tableau contenant les valeurs.</returns>
         public int[] GetCouleur()
         {
             return new int[3] { this.R, this.G, this.B };
         }
 
         /// <summary>
-        /// Converti les valeurs r, v, b en string
+        /// Converti les valeurs r, v, b en string.
         /// </summary>
-        /// <returns>Un string contenant les valeurs r, v, b</returns>
+        /// <returns>Un string contenant les valeurs r, v, b.</returns>
         public override string ToString()
         {
             return this.R + " " + this.G + " " + this.B;
