@@ -22,9 +22,11 @@ namespace ProjetCode
             //MyImage crypted = img.CryptWithImage(new MyImage("/bin/Debug/Images/meme.bmp"));
             //crypted.FromImageToFile("/bin/Debug/Images/TestCrypt.bmp");
 
-            MyImage img = new MyImage("/bin/Debug/Images/TestCrypt.bmp");
-            MyImage decrypt = img.DecryptWithImage(new MyImage("/bin/Debug/Images/meme.bmp"));
-            decrypt.FromImageToFile("/bin/Debug/Exports/test.bmp");
+            //MyImage img = new MyImage("/bin/Debug/Images/TestCrypt.bmp");
+            //MyImage decrypt = img.DecryptWithImage(new MyImage("/bin/Debug/Images/meme.bmp"));
+            //decrypt.FromImageToFile("/bin/Debug/Exports/test.bmp");
+
+            QRCode qr = new QRCode();
 
             Console.ReadKey();
         }

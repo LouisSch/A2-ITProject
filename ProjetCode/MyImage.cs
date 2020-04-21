@@ -548,8 +548,9 @@ namespace ProjetCode
         /// <summary>
         /// Permet de faire une symétrie par rapport à l'horizontale
         /// </summary>
-        public void MirrorX()
+        public MyImage MirrorX()
         {
+            MyImage image = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
             Pixel[,] newImage = new Pixel[this.hauteur, this.largeur];
 
             for (int j = this.pixelsImage.GetLength(1) - 1; j >= 0; j--)
@@ -560,14 +561,17 @@ namespace ProjetCode
                 }
             }
 
-            this.pixelsImage = newImage;
+            image.PixelsImage = newImage;
+
+            return image;
         }
 
         /// <summary>
         /// Permet de faire une symétrie par rapport à la verticale
         /// </summary>
-        public void MirrorY()
+        public MyImage MirrorY()
         {
+            MyImage image = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
             Pixel[,] newImage = new Pixel[this.hauteur, this.largeur];
 
             for (int i = this.pixelsImage.GetLength(1) - 1; i >= 0; i--)
@@ -579,7 +583,9 @@ namespace ProjetCode
                 }
             }
 
-            this.pixelsImage = newImage;
+            image.PixelsImage = newImage;
+
+            return image;
         }
 
         /// <summary>
@@ -734,8 +740,10 @@ namespace ProjetCode
         /// <summary>
         /// Permet de passer l'image en nuances de gris
         /// </summary>
-        public void GreyShadesFilter()
+        public MyImage GreyShadesFilter()
         {
+            MyImage image = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
+            Pixel[,] pixelsImage = new Pixel[this.hauteur, this.largeur];
             int temp;
 
             for (int i = 0; i < pixelsImage.GetLength(0); i++)
@@ -744,18 +752,22 @@ namespace ProjetCode
                 {
                     temp = Convert.ToByte((this.pixelsImage[i, j].Red + this.pixelsImage[i, j].Green + this.pixelsImage[i, j].Blue) / 3);
 
-                    this.pixelsImage[i, j].Red = temp;
-                    this.pixelsImage[i, j].Green = temp;
-                    this.pixelsImage[i, j].Blue = temp;
+                    pixelsImage[i, j] = new Pixel(i ,j , temp, temp, temp);
                 }
             }
+
+            image.PixelsImage = pixelsImage;
+
+            return image;
         }
 
         /// <summary>
         /// Permet de passer l'image en noir et blanc
         /// </summary>
-        public void BlackAndWhiteFilter()
+        public MyImage BlackAndWhiteFilter()
         {
+            MyImage image = new MyImage(this.type, this.largeur, this.hauteur, this.taille, this.tailleOffset);
+            Pixel[,] pixelsImage = new Pixel[this.hauteur, this.largeur];
             byte temp;
             int med = 127;
 
@@ -767,19 +779,19 @@ namespace ProjetCode
 
                     if (temp <= med)
                     {
-                        this.pixelsImage[i, j].Red = 0;
-                        this.pixelsImage[i, j].Green = 0;
-                        this.pixelsImage[i, j].Blue = 0;
+                        pixelsImage[i, j] = new Pixel(i, j, 0, 0, 0);
                     }
                     else
                     {
-                        this.pixelsImage[i, j].Red = 255;
-                        this.pixelsImage[i, j].Green = 255;
-                        this.pixelsImage[i, j].Blue = 255;
+                        pixelsImage[i, j] = new Pixel(i, j, 255, 255, 255);
                     }
 
                 }
             }
+
+            image.PixelsImage = pixelsImage;
+
+            return image;
         }
 
         #endregion
