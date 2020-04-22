@@ -1315,7 +1315,7 @@ namespace ProjetCode
         /// </summary>
         /// <param name="largeur">Dimension à (éventuellement) modifier</param>
         /// <returns>La nouvelle largeur</returns>
-        private int ToFormat4(int largeur)
+        public static int ToFormat4(int largeur)
         {
             while ((largeur % 4) != 0)
             {
