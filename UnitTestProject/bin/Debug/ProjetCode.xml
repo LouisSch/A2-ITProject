@@ -40,11 +40,76 @@
             Propriétés de Hauteur
             </summary>
         </member>
+        <member name="P:ProjetCode.MyImage.TailleOffset">
+            <summary>
+             Propriétés de tailleOffset
+            </summary>
+        </member>
         <member name="M:ProjetCode.MyImage.FromImageToFile(System.String)">
             <summary>
             Permet d'exporter une image
             </summary>
             <param name="chemin">Chemin relatif (par rapport au dossier du projet) avec le nom du fichier et son extension</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.MandelBrot(System.Int32)">
+            <summary>
+            Algorithm permettant de créer une image avec la fractale de Mandelbrot
+            </summary>
+            <param name="iterationMax">Nombre d'itérations maximum pour le calcul de la convergence</param>
+            <returns>Une image contenant la fractale de Mandelbrot</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.Julia(System.Int32,System.Double,System.Double)">
+            <summary>
+            Algorithme permettant de créer une image avec la fractale de Julia.
+            </summary>
+            <param name="iterationMax">Nombre d'itérations maximum pour le calcul de la convergence.</param>
+            <param name="cRe">Valeur de la partie réelle de la constante.</param>
+            <param name="cIm">Valeur de la partie imaginaire de la constante.</param>
+            <returns></returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.CryptWithImage(ProjetCode.MyImage)">
+            <summary>
+            Permet de crypter une image grâce à une autre image
+            </summary>
+            <param name="image">L'image à utiliser pour crypter l'image (ses dimensions doivent être au moins égales à celle de l'image à crypter).</param>
+            <returns>Retourne l'image cryptée.</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.HistogrammeCouleurs">
+            <summary>
+            Crée une image contenant l'histogramme des couleurs d'une image.
+            </summary>
+            <param name="couleur">La couleur à analyser (R, G ou B, défaut à R).</param>
+            <returns>Une image contenant l'histogramme de la couleur analysée.</returns>        
+        </member>
+        <member name="M:ProjetCode.MyImage.DetectContours">
+            <summary>
+            Filtre de convolution : détection de contours
+            </summary>
+            <returns>un nouvelle image avec le filtre</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.Repoussage">
+            <summary>
+            Filtre de convolution : Repoussage
+            </summary>
+            <returns>un nouvelle image avec le filtre</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.RenforceContours">
+            <summary>
+            Filtre de convolution : Renforcement des contours
+            </summary>
+            <returns>un nouvelle image avec le filtre</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.RenforceContrastes">
+            <summary>
+            Filtre de convolution : Renforcement des contrastes
+            </summary>
+            <returns>un nouvelle image avec le filtre</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.Blur">
+            <summary>
+            Filtre de convolution : Flou
+            </summary>
+            <returns>un nouvelle image avec le filtre</returns>
         </member>
         <member name="M:ProjetCode.MyImage.MirrorX">
             <summary>
@@ -56,11 +121,24 @@
             Permet de faire une symétrie par rapport à la verticale
             </summary>
         </member>
+        <member name="M:ProjetCode.MyImage.Rotate(System.Double)">
+            <summary>
+            Permet d'effectuer une rotation sur une image
+            </summary>
+            <param name="angle">Angle de rotation en degrés</param>
+        </member>
         <member name="M:ProjetCode.MyImage.Minimize(System.Int32)">
             <summary>
             Permet de réduire la taille d'une image
             </summary>
             <param name="ratio">Le ratio pour réduire la largeur et la hauteur</param>
+            <returns>Une nouvelle instance contenant la nouvelle image</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.Maximize(System.Int32)">
+            <summary>
+            Permet d'agrandir la taille d'une image
+            </summary>
+            <param name="ratio">Le ratio pour augmenter la largeur et la hauteur</param>
             <returns>Une nouvelle instance contenant la nouvelle image</returns>
         </member>
         <member name="M:ProjetCode.MyImage.GreyShadesFilter">
@@ -111,6 +189,56 @@
             </summary>
             <param name="datas">Le tableau de données dans lequel le header va être ajouté</param>
             <returns></returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.xOr(System.Int32,System.Int32)">
+            <summary>
+            Permet d'effectuer un ou exclusif.
+            </summary>
+            <param name="a">Premier entier.</param>
+            <param name="b">Deuxième entier.</param>
+            <returns>1 ou 0 selon les cas.</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.ConvertBinaryToByte(System.Int32[])">
+            <summary>
+            Permet de convertir un nombre binaire en octet.
+            </summary>
+            <param name="binary">Nombre binaire à convertir.</param>
+            <returns>Le nombre convertit en octet.</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.ConvertByteToBinary(System.Byte,System.Int32)">
+            <summary>
+            Convertit un octet en binaire.
+            </summary>
+            <param name="b">L'octet à convertir.</param>
+            <param name="size">Le nombre de bit.</param>
+            <returns>Le nombre en binaire sur n bit.</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.MaxMatrix(System.Int32[0:,0:])">
+            <summary>
+            Calcule le maximum d'une matrice d'entiers.
+            </summary>
+            <param name="m"> La matrice à évaluer.</param>
+            <returns>Retourne le max de la matrice.</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.CountPixelShades">
+            <summary>
+            Permet de compter les différentes nuances des couleurs dans une image.
+            </summary>
+            <returns>Un tableau avec le comptage des 256 nuances de chaque couleur.</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.SetBackground(ProjetCode.Pixel)">
+            <summary>
+            Permet de définir une couleur d'arrière plan pour une image
+            </summary>
+            <param name="pixel">Pixel d'arrière plan</param>
+        </member>
+        <member name="M:ProjetCode.MyImage.ApplyConvolution(ProjetCode.Pixel[0:,0:],System.Double[0:,0:])">
+            <summary>
+            Permet d'appliquer un filtre de convolution à une matrice
+            </summary>
+            <param name="image">Matrice des pixels de l'image à modifier</param>
+            <param name="convolution">Matrice de convolution du filtre</param>
+            <returns>Un nouvelle matrice de pixel avec le filtre</returns>
         </member>
         <member name="M:ProjetCode.MyImage.InsertLittleEndian(System.Byte[],System.Byte[],System.Int32)">
             <summary>
@@ -166,11 +294,19 @@
             </summary>
             <param name="image">Matrice contenant les pixels de l'image</param>
         </member>
-        <member name="M:ProjetCode.MyImage.ToFormat4(System.Int32[])">
+        <member name="M:ProjetCode.MyImage.ToFormat4(System.Int32)">
             <summary>
-            Permet de rendre les dimensions d'une image divisibles par 4
+            Permet de rendre la largeur d'une image divisible par 4
             </summary>
-            <param name="dimensions">Dimensions à (éventuellement) modifier</param>
+            <param name="largeur">Dimension à (éventuellement) modifier</param>
+            <returns>La nouvelle largeur</returns>
+        </member>
+        <member name="M:ProjetCode.MyImage.ConvertDegreeToRad(System.Double)">
+            <summary>
+            Permet de convertir de degrés en radians
+            </summary>
+            <param name="angle">Angle à convertir</param>
+            <returns>L'angle en radians</returns>
         </member>
         <member name="T:ProjetCode.Pixel">
             <summary>

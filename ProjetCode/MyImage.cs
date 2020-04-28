@@ -312,8 +312,8 @@ namespace ProjetCode
                                 }
 
                                 // On définit l'octet en binaire
-                                octetSource[k] = ConvertByteToBinary((byte)targetColorSource, 8);
-                                octetImage[k] = ConvertByteToBinary((byte)targetColorImage, 8);
+                                octetSource[k] = ConvertToBinary(targetColorSource, 8);
+                                octetImage[k] = ConvertToBinary(targetColorImage, 8);
 
                                 // On effectue le cryptage
                                 for (int l = 0; l < 4; l++)
@@ -392,8 +392,8 @@ namespace ProjetCode
                                 }
 
                                 // On définit l'octet en binaire
-                                octetSource[k] = ConvertByteToBinary((byte)targetColorSource, 8);
-                                octetImage[k] = ConvertByteToBinary((byte)targetColorImage, 8);
+                                octetSource[k] = ConvertToBinary(targetColorSource, 8);
+                                octetImage[k] = ConvertToBinary(targetColorImage, 8);
 
                                 // On effectue le cryptage
                                 for (int l = 0; l < 4; l++)
@@ -1037,7 +1037,7 @@ namespace ProjetCode
         /// <param name="b">L'octet à convertir.</param>
         /// <param name="size">Le nombre de bit.</param>
         /// <returns>Le nombre en binaire sur n bit.</returns>
-        public static int[] ConvertByteToBinary(byte b, int size)
+        public static int[] ConvertToBinary(int b, int size)
         {
             int[] result = new int[size];
             int partEntiere = 0, reste = 0;
@@ -1048,7 +1048,7 @@ namespace ProjetCode
                 reste = (int)(b % (Math.Pow(2, Convert.ToDouble(i))));
 
                 result[i] = b - (2 * partEntiere);
-                b = (byte)partEntiere;
+                b = partEntiere;
             }
 
             return result;

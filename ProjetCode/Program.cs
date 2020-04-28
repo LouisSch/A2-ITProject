@@ -26,7 +26,10 @@ namespace ProjetCode
             //MyImage decrypt = img.DecryptWithImage(new MyImage("/bin/Debug/Images/meme.bmp"));
             //decrypt.FromImageToFile("/bin/Debug/Exports/test.bmp");
 
-            QRCode qr = new QRCode();
+            QRCode qr = new QRCode("HELLO WORLD COMMENT CA VA LA FAMILLE");
+            MyImage test = qr.Image;
+            MyImage zoom = test.Maximize(8);
+                zoom.FromImageToFile("/bin/Debug/Images/TestQRCode.bmp");
 
             Console.ReadKey();
         }
